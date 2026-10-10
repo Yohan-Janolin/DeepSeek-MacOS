@@ -1,0 +1,32 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+.Spotlight-V100
+.Trashes
+.fseventsd
+# Xcode user-specific settings and state
+xcuserdata/
+*.xcuserstate
+*.xccheckout
+*.moved-aside
+*.mode1v3
+*.mode2v3
+*.perspectivev3
+# Xcode build products and archives
+DerivedData/
+build/
+*.app
+*.ipa
+*.dSYM
+*.dSYM.zip
+*.xcarchive
+*.hmap
+# Swift Package Manager generated files
+.build/
+Packages/
+# Dependency manager build output
+Carthage/Build/
+Pods/
