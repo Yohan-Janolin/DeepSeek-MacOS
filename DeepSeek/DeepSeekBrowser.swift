@@ -5,17 +5,43 @@ import WebKit
 @MainActor
 final class DeepSeekBrowser: NSObject, ObservableObject {
     @Published var errorMessage: String?
+    @Published private(set) var canGoBack = false
+    @Published private(set) var canGoForward = false
     weak var webView: WKWebView?
     private var loaded = false
-    private var downloads: [ObjectIdentifier: URL] = [:]
+
+    private let homeURL = URL(string: "https://chat.deepseek.com")!
 
     func loadIfNeeded() {
-        guard !loaded, let url = URL(string: "https://chat.deepseek.com") else { return }
+        guard !loaded else { return }
         loaded = true
-        webView?.load(URLRequest(url: url))
+        webView?.load(URLRequest(url: homeURL))
     }
 
     func reload() { errorMessage = nil; webView?.reload() }
+    func goBack() { webView?.goBack() }
+    func goForward() { webView?.goForward() }
+    func goHome() { errorMessage = nil; webView?.load(URLRequest(url: homeURL)) }
+
+    private func updateNavigationState() {
+        canGoBack = webView?.canGoBack ?? false
+        canGoForward = webView?.canGoForward ?? false
+    }
+
+    private func isDeepSeekURL(_ url: URL) -> Bool {
+        guard let host = url.host?.lowercased() else { return false }
+        return host == "deepseek.com" || host.hasSuffix(".deepseek.com")
+    }
+
+    private func openOutsideAppIfNeeded(_ action: WKNavigationAction) -> Bool {
+        guard action.navigationType == .linkActivated,
+              let url = action.request.url,
+              let scheme = url.scheme?.lowercased(),
+              ["http", "https"].contains(scheme),
+              !isDeepSeekURL(url) else { return false }
+        NSWorkspace.shared.open(url)
+        return true
+    }
 
     func signOut() {
         let domain = "deepseek.com"
@@ -42,13 +68,19 @@ extension DeepSeekBrowser: WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
         guard nsError.code != NSURLErrorCancelled else { return }
         errorMessage = "Impossible de charger DeepSeek. Vérifiez votre connexion, puis réessayez. (\(error.localizedDescription))"
     }
-    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) { errorMessage = nil }
+    func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+        errorMessage = nil
+        updateNavigationState()
+    }
+    func webView(_ webView: WKWebView, didCommit navigation: WKNavigation!) { updateNavigationState() }
 
-    // Les fenêtres demandées par le site (target=_blank, OAuth, etc.) restent dans la fenêtre native.
+    // Les liens DeepSeek restent dans l'app. Les liens des sites tiers partent dans le navigateur par défaut.
     func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration,
                  for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
         guard navigationAction.targetFrame == nil else { return nil }
-        if let url = navigationAction.request.url, let scheme = url.scheme?.lowercased(), ["http", "https"].contains(scheme) {
+        if !openOutsideAppIfNeeded(navigationAction),
+           let url = navigationAction.request.url,
+           let scheme = url.scheme?.lowercased(), ["http", "https"].contains(scheme) {
             webView.load(navigationAction.request)
         }
         return nil
@@ -56,6 +88,10 @@ extension DeepSeekBrowser: WKNavigationDelegate, WKUIDelegate, WKDownloadDelegat
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction,
                  decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if openOutsideAppIfNeeded(navigationAction) {
+            decisionHandler(.cancel)
+            return
+        }
         guard let scheme = navigationAction.request.url?.scheme?.lowercased() else { decisionHandler(.allow); return }
         if ["http", "https", "about", "blob", "data"].contains(scheme) { decisionHandler(.allow) }
         else {
