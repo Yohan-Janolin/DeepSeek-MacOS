@@ -51,10 +51,10 @@ To build your own copy of the app, please follow the steps below.
 7. Then open **Products/Debug/DeepSeek.app**.
 8. Move **DeepSeek.app** to you **Application** folder.
 
-[!IMPORTANT]
-The provided bundle identifier is `com.example.DeepSeek`. You can change it under **Target DeepSeek > Signing & Capabilities** before signing or distributing your own build.
+> [!IMPORTANT]
+> The provided bundle identifier is `com.example.DeepSeek`. You can change it under **Target DeepSeek > Signing & Capabilities** before signing or distributing your own build.
 
-[!NOTE]
-The app icon uses the official DeepSeek website favicon SVG: <https://fe-static.deepseek.com/chat/favicon.svg>.
+> [!NOTE]
+> The app icon uses the official DeepSeek website favicon SVG: <https://fe-static.deepseek.com/chat/favicon.svg>.
 
 
