@@ -53,10 +53,8 @@ To build your own copy of the app, please follow the steps below.
 
 [!IMPORTANT]
 The provided bundle identifier is `com.example.DeepSeek`. You can change it under **Target DeepSeek > Signing & Capabilities** before signing or distributing your own build.
-[!IMPORTANT]
 
 [!NOTE]
 The app icon uses the official DeepSeek website favicon SVG: <https://fe-static.deepseek.com/chat/favicon.svg>.
-[!NOTE]
 
 
