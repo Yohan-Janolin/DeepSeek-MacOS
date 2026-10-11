@@ -1,7 +1,7 @@
 # DeepSeek for MacOS
 
 <p align="center">
-    <img src="images/deepseek-logo.png" width="128" alt="DeepSeek for MacOS" />
+    <img src="Images/deepseek-logo.png" width="128" alt="DeepSeek for MacOS" />
 </p>
 
 [![Swift 6](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)](https://swift.org)
